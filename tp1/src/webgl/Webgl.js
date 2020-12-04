@@ -107,10 +107,7 @@ export default class Webgl {
     if (nb > 0) {
       this.startGame(debut, milieu, fin, nb - 1);
       this.animations.push([debut, fin]);
-      //   var item = this.torrus[this.number - nb]
       this.startGame(milieu, fin, debut, nb - 1);
-      // fonction hanoi entre le milieu et la fin il faut stocker les valeurs puis lancer animation
-      // faire un tableau avec les déplacements et le jouer à la fin tant que c'est pas vide
     }
   }
 
@@ -122,15 +119,22 @@ export default class Webgl {
     const from = currentAnimation[0];
     const to = currentAnimation[1];
     console.log(from)
-   /// const coords = this.torrus[this.number].position;
    const that = this
-
+     //  var etage =0;
+  //   this.torrus.find(function(torus) {
+  //   if(torus.position.x === to.x)
+  //   {
+  //     etage ++;
+  //   }
+  //   console.log(etage)
+  //   return etage
+  // })
    const item = this.torrus.find(function(torus) {
      const yDesTorus = that.torrus.map(torus => torus.position.y)
      console.log(torus.position.x === from.x && torus.position.y === Math.max.apply(Math, yDesTorus))
      return torus.position.x === from.x && torus.position.y === Math.max.apply(Math, yDesTorus)
    })
-   
+
    if (item) {
     var moveUp = new TWEEN.Tween(item.position)
       .to({ x: from.x, y: from.y + 20 }, 1000)
@@ -141,6 +145,7 @@ export default class Webgl {
       .easing(TWEEN.Easing.Quadratic.Out);
 
     var moveDown = new TWEEN.Tween(item.position)
+     // .to({ x: to.x, y: to.y - 10 + (etage *1.8) }, 1000)
       .to({ x: to.x, y: to.y - 10 }, 1000)
       .easing(TWEEN.Easing.Quadratic.Out)
       .onComplete(function () {
