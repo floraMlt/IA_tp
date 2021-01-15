@@ -39,63 +39,113 @@ export default class Webgl {
     this.spotlight2.position.set(20, 10, -10);
     this.scene.add(this.spotlight2);
     this.camera.position.z = 45;
-    this.runKoch("F--F--F-",3)
     this.time = 0;
-
+    this.list = this.createGrid()
+    var self=this
+    for(var i=0; i<5;i++){
+      setTimeout(function() {
+        self.getState(self.list)
+      }, 1000*i);
+    }
     window.addEventListener("resize", this.onResize);
   }
 
-  getColor() {
+  getAlive() {
     var min = Math.ceil(0);
-    var max = Math.floor(255);
-    var color = new Color(
-      Math.floor(Math.random() * (max - min + 1)) + min,
-      Math.floor(Math.random() * (max - min + 1)) + min,
-      Math.floor(Math.random() * (max - min + 1)) + min
-    );
+    var max = Math.floor(100);
+    var alive = Math.floor(Math.random() * (max - min + 1)) + min
+    var color;
+    if(alive>50){
+      color = new Color(0,1,1);
+    }
+    else{
+      color = new Color(1,1,1);
+    }
     return color.getHex();
   }
 
-  createLine(x,y,z,r){
-    this.line = new MagicalObject(x, y, z,r, this.getColor());
-    this.scene.add(this.line);
+  createGrid(){
+    var cubes =[]
+    var color
+    for(var i=0; i<10;i++){
+      for(var j=0; j<10;j++){
+        this.cube = new MagicalObject(5*i, 5*j, 1, this.getAlive());
+        this.scene.add(this.cube);
+        cubes.push(this.cube)
+      }
+    }
+    return cubes
   }
 
-  runKoch(init,n){
-    var x =-10;
-    var y =-10
-    var z=0;
-    var r=0;
-    var instruction=init;
-    for(var i=0;i<n;i++){
-      var tmp='';
-      var str = "F+F--F+F";
-      instruction.split('').forEach((c) => {
-        if(c=="F"){
-          tmp+=str;
+  getState(list){
+    var alive=0
+    var self=this
+    var toChange=[]
+    list.forEach(element => {
+      //check voisins
+      list.forEach(item => {
+        if(item.position.x==element.position.x-5 && item.position.y==element.position.y && item.material.color.r==0){
+            alive++
         }
-        else{
-          tmp+=c
+        else if(item.position.x==element.position.x+5 && item.position.y==element.position.y && item.material.color.r==0){
+            alive++
+        }
+        else if(item.position.x==element.position.x-5 && item.position.y==element.position.y-5 && item.material.color.r==0){
+            alive++
+        }
+        else if(item.position.x==element.position.x && item.position.y==element.position.y-5 && item.material.color.r==0){
+            alive++
+        }
+        else if(item.position.x==element.position.x-5 && item.position.y==element.position.y+5 && item.material.color.r==0){
+            alive++
+        }
+        else if(item.position.x==element.position.x+5 && item.position.y==element.position.y-5 && item.material.color.r==0){
+            alive++
+        }
+        else if(item.position.x==element.position.x+5 && item.position.y==element.position.y+5 && item.material.color.r==0){
+            alive++
+        }
+        else if(item.position.x==element.position.x && item.position.y==element.position.y+5 && item.material.color.r==0){
+            alive++
         }
       })
-      instruction=tmp;
+      toChange.push(self.changeState(element,alive))
+      alive=0
+    })
+    this.changeColor(toChange)
+  }
+
+  changeState(element, alive){
+    if(element.material.color.r==0){
+      console.log(alive)
     }
-     instruction.split('').forEach((c) => {
-      console.log(c);
-      if(c=="F"){
-        c=str;
-        console.log(x +" " + y)
-        this.createLine(x,y,z,r)
-        x+=5*Math.cos(r);
-        y+=5*Math.sin(r);
+    
+    var toChange
+    if(element.material.color.r==1 && alive>=3){
+      toChange={element, alive:0}
+      console.log("i'm in")
+    }
+    else if(element.material.color.r==0 && (alive==2 || alive == 3)){
+      toChange={element, alive:0}
+      console.log("i'm in2")
+    }
+    else{
+      toChange={element, alive:1}
+      console.log("i'm in3")
+    }
+    return toChange
+  }
+
+  changeColor(toChange){
+    toChange.forEach(element => {
+      if(element.alive==1){
+        element.element.material.color.setRGB(1,1,1)
       }
-      else if(c=="-"){
-        r+=Math.PI/3;
+      else{
+        element.element.material.color.setRGB(0,1,1)
       }
-      else if(c=="+"){
-        r+=-(Math.PI/3);
-      }
-    });
+      //
+    })
   }
 
   onResize() {
@@ -108,7 +158,6 @@ export default class Webgl {
     requestAnimationFrame(this.start);
     this.time += 0.01;
     
-
     this.controls.update();
 
     this.renderer.render(this.scene, this.camera);
