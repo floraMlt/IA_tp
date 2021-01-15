@@ -123,15 +123,12 @@ export default class Webgl {
     var toChange
     if(element.material.color.r==1 && alive>=3){
       toChange={element, alive:0}
-      console.log("i'm in")
     }
     else if(element.material.color.r==0 && (alive==2 || alive == 3)){
       toChange={element, alive:0}
-      console.log("i'm in2")
     }
     else{
       toChange={element, alive:1}
-      console.log("i'm in3")
     }
     return toChange
   }
